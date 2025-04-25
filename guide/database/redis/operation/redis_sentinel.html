@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Redis哨兵模式实战 | 观山笔记</title>
+    <meta name="generator" content="VuePress 1.9.7">
+    <link rel="icon" href="/logo.png">
+    <meta name="description" content="不畏浮云遮望眼,只缘身在此山中">
+    
+    <link rel="preload" href="/assets/css/0.styles.74b8a50a.css" as="style"><link rel="preload" href="/assets/js/app.874a2ac8.js" as="script"><link rel="preload" href="/assets/js/2.57a39ff2.js" as="script"><link rel="preload" href="/assets/js/17.eb749829.js" as="script"><link rel="prefetch" href="/assets/js/10.425a5f86.js"><link rel="prefetch" href="/assets/js/11.b7744736.js"><link rel="prefetch" href="/assets/js/12.d436b97f.js"><link rel="prefetch" href="/assets/js/13.cb56296f.js"><link rel="prefetch" href="/assets/js/14.d51da068.js"><link rel="prefetch" href="/assets/js/15.d05b0ae2.js"><link rel="prefetch" href="/assets/js/16.20eb1105.js"><link rel="prefetch" href="/assets/js/18.8e2af4ca.js"><link rel="prefetch" href="/assets/js/19.f6c575ea.js"><link rel="prefetch" href="/assets/js/20.99aec0e4.js"><link rel="prefetch" href="/assets/js/21.d99e69e0.js"><link rel="prefetch" href="/assets/js/22.7ea41db6.js"><link rel="prefetch" href="/assets/js/23.1d81cb36.js"><link rel="prefetch" href="/assets/js/3.e53ab11f.js"><link rel="prefetch" href="/assets/js/4.db57cb1a.js"><link rel="prefetch" href="/assets/js/5.b52c7831.js"><link rel="prefetch" href="/assets/js/6.20c0053e.js"><link rel="prefetch" href="/assets/js/7.04ed8f94.js"><link rel="prefetch" href="/assets/js/8.8b6e5f49.js"><link rel="prefetch" href="/assets/js/9.e770c2ed.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.74b8a50a.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">观山笔记</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="java" class="dropdown-title"><span class="title">java</span> <span class="arrow down"></span></button> <button type="button" aria-label="java" class="mobile-dropdown-title"><span class="title">java</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/guide/thread/" class="nav-link">
+  多线程
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="数据库" class="dropdown-title"><span class="title">数据库</span> <span class="arrow down"></span></button> <button type="button" aria-label="数据库" class="mobile-dropdown-title"><span class="title">数据库</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/guide/database/mysql/" class="nav-link">
+  MYSQL
+</a></li><li class="dropdown-item"><!----> <a href="/guide/database/redis/" class="nav-link router-link-active">
+  Redis
+</a></li><li class="dropdown-item"><!----> <a href="/guide/database/es/" class="nav-link">
+  ElasticSearch
+</a></li></ul></div></div><div class="nav-item"><a href="https://baidu.com" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  百度
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="java" class="dropdown-title"><span class="title">java</span> <span class="arrow down"></span></button> <button type="button" aria-label="java" class="mobile-dropdown-title"><span class="title">java</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/guide/thread/" class="nav-link">
+  多线程
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="数据库" class="dropdown-title"><span class="title">数据库</span> <span class="arrow down"></span></button> <button type="button" aria-label="数据库" class="mobile-dropdown-title"><span class="title">数据库</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/guide/database/mysql/" class="nav-link">
+  MYSQL
+</a></li><li class="dropdown-item"><!----> <a href="/guide/database/redis/" class="nav-link router-link-active">
+  Redis
+</a></li><li class="dropdown-item"><!----> <a href="/guide/database/es/" class="nav-link">
+  ElasticSearch
+</a></li></ul></div></div><div class="nav-item"><a href="https://baidu.com" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  百度
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>Redis</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/guide/database/redis/" aria-current="page" class="sidebar-link">初识Redis</a></li><li><section class="sidebar-group is-sub-group depth-1"><p class="sidebar-heading"><span>理论</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/guide/database/redis/principle/Redis_UnderlyingDataStructure.html" class="sidebar-link">Redis的底层数据结构</a></li><li><a href="/guide/database/redis/principle/redis_cluster.html" class="sidebar-link">Redis集群模式</a></li><li><a href="/guide/database/redis/principle/redis_sentinel.html" class="sidebar-link">Redis哨兵模式</a></li></ul></section></li><li><section class="sidebar-group is-sub-group depth-1"><p class="sidebar-heading open"><span>实战</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/guide/database/redis/operation/redis_cluster.html" class="sidebar-link">Redis集群模式实战</a></li><li><a href="/guide/database/redis/operation/redis_sentinel.html" aria-current="page" class="active sidebar-link">Redis哨兵模式实战</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/guide/database/redis/operation/redis_sentinel.html#_1、安装环境-参考" class="sidebar-link">1、安装环境（参考）</a></li><li class="sidebar-sub-header"><a href="/guide/database/redis/operation/redis_sentinel.html#_2、搭建步骤" class="sidebar-link">2、搭建步骤</a></li><li class="sidebar-sub-header"><a href="/guide/database/redis/operation/redis_sentinel.html#_3、创建测试项目" class="sidebar-link">3、创建测试项目</a></li></ul></li></ul></section></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="redis哨兵模式实战"><a href="#redis哨兵模式实战" class="header-anchor">#</a> Redis哨兵模式实战</h1> <blockquote><p>因公司项目需求原因，Redis用的是Redis哨兵集群模式，个人没有多余的电脑和服务器（穷）去搭建一样的环境，于是就选用了虚拟机+docker+docker-compose+Redis搭建Redis哨兵集群模拟。</p> <p>哨兵集群：一主两从三哨兵</p></blockquote> <h2 id="_1、安装环境-参考"><a href="#_1、安装环境-参考" class="header-anchor">#</a> 1、安装环境（参考）</h2> <ul><li>虚拟机：VMware® Workstation 15 Pro</li> <li>docker：20.10.17</li> <li>docker-compose：v2.6.0</li> <li>redis镜像：redis:latest</li></ul> <h2 id="_2、搭建步骤"><a href="#_2、搭建步骤" class="header-anchor">#</a> 2、搭建步骤</h2> <h3 id="_1-创建文件夹及文件"><a href="#_1-创建文件夹及文件" class="header-anchor">#</a> 1）创建文件夹及文件</h3> <p>虚拟机usr/soft/dockers目录下创建文件夹及文件，结构如下：</p> <ul><li><p>redis-sentinel</p> <ul><li><p>redis</p> <ul><li>docker-compose.yml</li> <li>redis1.conf</li> <li>redis2.conf</li> <li>redis3.conf</li></ul></li> <li><p>sentinel</p> <ul><li>docker-compose.yml
+<ul><li>sentinel1.conf</li> <li>sentinel2.conf</li> <li>sentinel3.conf</li></ul></li></ul></li></ul></li></ul> <h3 id="_2-添加配置文件"><a href="#_2-添加配置文件" class="header-anchor">#</a> 2）添加配置文件</h3> <p><strong>注意将配置文件中对应ip改成本地电脑虚拟机的固定ip即可</strong></p> <h4 id="redis目录"><a href="#redis目录" class="header-anchor">#</a> redis目录</h4> <ul><li>docker-compose.yml</li></ul> <div class="language-yml extra-class"><pre class="language-yml"><code><span class="token key atrule">version</span><span class="token punctuation">:</span> <span class="token string">'3.4'</span>
+<span class="token key atrule">services</span><span class="token punctuation">:</span>
+  <span class="token key atrule">master</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> redis
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> redis<span class="token punctuation">-</span>master
+    <span class="token key atrule">restart</span><span class="token punctuation">:</span> always
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./redis1.conf<span class="token punctuation">:</span>/usr/local/etc/redis/redis.conf
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> 6379<span class="token punctuation">:</span><span class="token number">6379</span>
+  <span class="token key atrule">slave1</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> redis
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> redis<span class="token punctuation">-</span>slave<span class="token punctuation">-</span><span class="token number">1</span>
+    <span class="token key atrule">restart</span><span class="token punctuation">:</span> always
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./redis2.conf<span class="token punctuation">:</span>/usr/local/etc/redis/redis.conf
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> 6380<span class="token punctuation">:</span><span class="token number">6379</span>
+  <span class="token key atrule">slave2</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> redis
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> redis<span class="token punctuation">-</span>slave<span class="token punctuation">-</span><span class="token number">2</span>
+    <span class="token key atrule">restart</span><span class="token punctuation">:</span> always
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./redis3.conf<span class="token punctuation">:</span>/usr/local/etc/redis/redis.conf
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> 6381<span class="token punctuation">:</span><span class="token number">6379</span>
+</code></pre></div><ul><li><p>redis1.conf</p> <div class="language-sh extra-class"><pre class="language-sh"><code>port <span class="token number">6379</span>
+daemonize no
+logfile /logs/redis.log
+appendonly <span class="token function">yes</span>
+requirepass <span class="token number">1234</span>
+masterauth <span class="token number">1234</span>
+</code></pre></div></li> <li><p>redis2.conf、redis.conf在redis1.conf<code>的基础上多了slaveof 192.168.232.130 6379</code></p></li></ul> <h4 id="sentienl目录"><a href="#sentienl目录" class="header-anchor">#</a> sentienl目录</h4> <ul><li><p>docker-compose.yml</p> <div class="language-yml extra-class"><pre class="language-yml"><code><span class="token key atrule">version</span><span class="token punctuation">:</span> <span class="token string">'3'</span>
+<span class="token key atrule">services</span><span class="token punctuation">:</span>
+  <span class="token key atrule">sentinel1</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> redis
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> redis<span class="token punctuation">-</span>sentinel<span class="token punctuation">-</span><span class="token number">1</span>
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> 26379<span class="token punctuation">:</span><span class="token number">26379</span>
+    <span class="token key atrule">command</span><span class="token punctuation">:</span> redis<span class="token punctuation">-</span>sentinel /usr/local/etc/redis/sentinel.conf
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./sentinel1.conf<span class="token punctuation">:</span>/usr/local/etc/redis/sentinel.conf
+  <span class="token key atrule">sentinel2</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> redis
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> redis<span class="token punctuation">-</span>sentinel<span class="token punctuation">-</span><span class="token number">2</span>
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> 26380<span class="token punctuation">:</span><span class="token number">26379</span>
+    <span class="token key atrule">command</span><span class="token punctuation">:</span> redis<span class="token punctuation">-</span>sentinel /usr/local/etc/redis/sentinel.conf
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./sentinel2.conf<span class="token punctuation">:</span>/usr/local/etc/redis/sentinel.conf
+  <span class="token key atrule">sentinel3</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> redis
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> redis<span class="token punctuation">-</span>sentinel<span class="token punctuation">-</span><span class="token number">3</span>
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> 26381<span class="token punctuation">:</span><span class="token number">26379</span>
+    <span class="token key atrule">command</span><span class="token punctuation">:</span> redis<span class="token punctuation">-</span>sentinel /usr/local/etc/redis/sentinel.conf
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./sentinel3.conf<span class="token punctuation">:</span>/usr/local/etc/redis/sentinel.conf
+</code></pre></div></li> <li><p>sentinel1.conf</p> <div class="language-sh extra-class"><pre class="language-sh"><code>
+port <span class="token number">26379</span>
+<span class="token function">dir</span> <span class="token string">&quot;/tmp&quot;</span>
+<span class="token comment"># 自定义集群名，其中 127.0.0.1 为 redis-master 的 ip，6379 为 redis-master 的端口，2 为最小投票数（因为有 3 台 Sentinel 所以可以设置成 2）</span>
+sentinel myid mk9vfc5x539dmr7xkm0q2aiml1ownqtarg3e5auu
+sentinel deny-scripts-reconfig <span class="token function">yes</span>
+sentinel monitor mymaster <span class="token number">192.168</span>.232.130 <span class="token number">6379</span> <span class="token number">2</span>
+sentinel auth-pass mymaster <span class="token number">1234</span>
+sentinel config-epoch mymaster <span class="token number">0</span>
+sentinel leader-epoch mymaster <span class="token number">0</span>
+<span class="token comment"># Generated by CONFIG REWRITE</span>
+sentinel known-replica mymaster <span class="token number">192.168</span>.232.130 <span class="token number">6381</span>
+sentinel known-replica mymaster <span class="token number">192.168</span>.232.130 <span class="token number">6380</span>
+sentinel known-sentinel mymaster <span class="token number">192.168</span>.232.130 <span class="token number">26381</span> p88utx173ga7body483zy21dn3ex8i9fzmh2un99
+sentinel known-sentinel mymaster <span class="token number">192.168</span>.232.130 <span class="token number">26380</span> 0da6yqhudf6bmvnkat5rds5s3bqs9imdg1kbz0mj
+sentinel current-epoch <span class="token number">0</span>
+
+<span class="token comment"># 哨兵从master节点宕机后，等待多少时间（毫秒），认定master不可用。</span>
+<span class="token comment"># 默认30s，这里为了测试，改成10s</span>
+sentinel down-after-milliseconds mymaster <span class="token number">10000</span>
+<span class="token comment"># 当替换主节点后，剩余从节点重新和新master做同步的并行数量，默认为 1</span>
+sentinel parallel-syncs mymaster <span class="token number">1</span>
+<span class="token comment"># 主备切换的时间，若在3分钟内没有切换成功，换另一个从节点切换</span>
+sentinel failover-timeout mymaster <span class="token number">180000</span>
+</code></pre></div></li> <li><p>sentinel2.conf</p> <div class="language- extra-class"><pre class="language-text"><code>
+port 26380
+dir &quot;/tmp&quot;
+# 自定义集群名，其中 127.0.0.1 为 redis-master 的 ip，6379 为 redis-master 的端口，2 为最小投票数（因为有 3 台 Sentinel 所以可以设置成 2）
+sentinel myid 0da6yqhudf6bmvnkat5rds5s3bqs9imdg1kbz0mj
+sentinel deny-scripts-reconfig yes
+sentinel monitor mymaster 192.168.232.130 6379 2
+sentinel auth-pass mymaster 1234
+sentinel config-epoch mymaster 0
+sentinel leader-epoch mymaster 0
+# Generated by CONFIG REWRITE
+sentinel known-replica mymaster 192.168.232.130 6381
+sentinel known-replica mymaster 192.168.232.130 6380
+sentinel known-sentinel mymaster 192.168.232.130 26379 mk9vfc5x539dmr7xkm0q2aiml1ownqtarg3e5auu
+sentinel known-sentinel mymaster 192.168.232.130 26381 p88utx173ga7body483zy21dn3ex8i9fzmh2un99
+sentinel current-epoch 0
+
+# 哨兵从master节点宕机后，等待多少时间（毫秒），认定master不可用。
+# 默认30s，这里为了测试，改成10s
+sentinel down-after-milliseconds mymaster 10000
+# 当替换主节点后，剩余从节点重新和新master做同步的并行数量，默认为 1
+sentinel parallel-syncs mymaster 1
+# 主备切换的时间，若在3分钟内没有切换成功，换另一个从节点切换
+sentinel failover-timeout mymaster 180000
+</code></pre></div></li> <li><p>sentinel3.conf</p> <div class="language- extra-class"><pre class="language-text"><code>
+port 26381
+dir &quot;/tmp&quot;
+# 自定义集群名，其中 192.168.232.130 为 redis-master 的 ip，6379 为 redis-master 的端口，2 为最小投票数（因为有 3 台 Sentinel 所以可以设置成 2）
+sentinel myid p88utx173ga7body483zy21dn3ex8i9fzmh2un99
+sentinel deny-scripts-reconfig yes
+sentinel monitor mymaster 192.168.232.130 6379 2
+sentinel auth-pass mymaster 1234
+sentinel config-epoch mymaster 0
+sentinel leader-epoch mymaster 0
+# Generated by CONFIG REWRITE
+sentinel known-replica mymaster 192.168.232.130 6380
+sentinel known-replica mymaster 192.168.232.130 6381
+sentinel known-sentinel mymaster 192.168.232.130 26380 0da6yqhudf6bmvnkat5rds5s3bqs9imdg1kbz0mj
+sentinel known-sentinel mymaster 192.168.232.130 26379 mk9vfc5x539dmr7xkm0q2aiml1ownqtarg3e5auu
+sentinel current-epoch 0
+
+# 哨兵从master节点宕机后，等待多少时间（毫秒），认定master不可用。
+# 默认30s，这里为了测试，改成10s
+sentinel down-after-milliseconds mymaster 10000
+# 当替换主节点后，剩余从节点重新和新master做同步的并行数量，默认为 1
+sentinel parallel-syncs mymaster 1
+# 主备切换的时间，若在3分钟内没有切换成功，换另一个从节点切换
+sentinel failover-timeout mymaster 180000
+</code></pre></div></li></ul> <h3 id="_3-启动容器"><a href="#_3-启动容器" class="header-anchor">#</a> 3）启动容器</h3> <ul><li><p>首先进入redis目录下，执行启动命令：<code>docker-compose up -d</code></p> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token punctuation">[</span>root@centos7 redis<span class="token punctuation">]</span><span class="token comment"># ll</span>
+总用量 <span class="token number">16</span>
+-rw-r--r--. <span class="token number">1</span> root root <span class="token number">1012</span> <span class="token number">10</span>月 <span class="token number">26</span> <span class="token number">23</span>:02 docker-compose.yml
+-rw-r--r--. <span class="token number">1</span> root root  <span class="token number">135</span> <span class="token number">10</span>月 <span class="token number">26</span> <span class="token number">23</span>:02 redis1.conf
+-rw-r--r--. <span class="token number">1</span> root root  <span class="token number">131</span> <span class="token number">10</span>月 <span class="token number">26</span> <span class="token number">23</span>:02 redis2.conf
+-rw-r--r--. <span class="token number">1</span> root root  <span class="token number">131</span> <span class="token number">10</span>月 <span class="token number">26</span> <span class="token number">23</span>:02 redis3.conf
+<span class="token punctuation">[</span>root@centos7 redis<span class="token punctuation">]</span><span class="token comment"># docker-compose up -d</span>
+<span class="token punctuation">[</span>+<span class="token punctuation">]</span> Running <span class="token number">4</span>/4
+ ⠿ Network redis_default    Created                                                                                                                                                   <span class="token number">0</span>.1s
+ ⠿ Container redis-slave-2  Started                                                                                                                                                   <span class="token number">1</span>.1s
+ ⠿ Container redis-master   Started                                                                                                                                                   <span class="token number">1</span>.1s
+ ⠿ Container redis-slave-1  Started                                                                                                                                                   <span class="token number">1</span>.1s
+<span class="token punctuation">[</span>root@centos7 redis<span class="token punctuation">]</span><span class="token comment"># docker-compose ps</span>
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+redis-master        <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   master              running             <span class="token number">0.0</span>.0.0:6379-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp, :::6379-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp
+redis-slave-1       <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   slave1              running             <span class="token number">0.0</span>.0.0:6380-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp, :::6380-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp
+redis-slave-2       <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   slave2              running             <span class="token number">0.0</span>.0.0:6381-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp, :::6381-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp
+</code></pre></div></li> <li><p>然后进入sentinel目录下，执行启动命令：<code>docker-compose up -d</code></p> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token punctuation">[</span>root@centos7 sentinel<span class="token punctuation">]</span><span class="token comment"># ll</span>
+总用量 <span class="token number">16</span>
+-rw-r--r--. <span class="token number">1</span> root root  <span class="token number">747</span> <span class="token number">10</span>月 <span class="token number">26</span> <span class="token number">15</span>:28 docker-compose.yml
+-rw-r--r--. <span class="token number">1</span> root root <span class="token number">1241</span> <span class="token number">10</span>月 <span class="token number">26</span> <span class="token number">15</span>:50 sentinel1.conf
+-rw-r--r--. <span class="token number">1</span> root root <span class="token number">1241</span> <span class="token number">10</span>月 <span class="token number">26</span> <span class="token number">15</span>:50 sentinel2.conf
+-rw-r--r--. <span class="token number">1</span> root root <span class="token number">1241</span> <span class="token number">10</span>月 <span class="token number">26</span> <span class="token number">15</span>:50 sentinel3.conf
+<span class="token punctuation">[</span>root@centos7 sentinel<span class="token punctuation">]</span><span class="token comment"># docker-compose up -d</span>
+<span class="token punctuation">[</span>+<span class="token punctuation">]</span> Running <span class="token number">4</span>/4
+ ⠿ Network sentinel_default    Created                                                                                                                                                <span class="token number">0</span>.1s
+ ⠿ Container redis-sentinel-3  Started                                                                                                                                                <span class="token number">1</span>.5s
+ ⠿ Container redis-sentinel-1  Started                                                                                                                                                <span class="token number">1</span>.6s
+ ⠿ Container redis-sentinel-2  Started                                                                                                                                                <span class="token number">1</span>.5s
+<span class="token punctuation">[</span>root@centos7 sentinel<span class="token punctuation">]</span><span class="token comment"># docker-compose ps</span>
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+redis-sentinel-1    <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   sentinel1           running             <span class="token number">0.0</span>.0.0:26379-<span class="token operator">&gt;</span><span class="token number">26379</span>/tcp, :::26379-<span class="token operator">&gt;</span><span class="token number">26379</span>/tcp
+redis-sentinel-2    <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   sentinel2           running             <span class="token number">0.0</span>.0.0:26380-<span class="token operator">&gt;</span><span class="token number">26379</span>/tcp, :::26380-<span class="token operator">&gt;</span><span class="token number">26379</span>/tcp
+redis-sentinel-3    <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   sentinel3           running             <span class="token number">0.0</span>.0.0:26381-<span class="token operator">&gt;</span><span class="token number">26379</span>/tcp, :::26381-<span class="token operator">&gt;</span><span class="token number">26379</span>/tcp
+
+</code></pre></div></li></ul> <h3 id="_4-查看状态"><a href="#_4-查看状态" class="header-anchor">#</a> 4）查看状态</h3> <ul><li><p>在第一步启动redis后，使用<code>docker exec -it redis-master bash</code>,进入redis三个节点（一个即可），然后执行<code>redis-cli -p 6379</code>连接redis，然后执行<code>info replication</code>查看主从状态，这时候不显示主从关系</p> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token punctuation">[</span>root@centos7 redis<span class="token punctuation">]</span><span class="token comment"># docker exec -it redis-master bash</span>
+root@f6c863c22248:/data<span class="token comment"># redis-cli -p 6379</span>
+<span class="token number">127.0</span>.0.1:637<span class="token operator"><span class="token file-descriptor important">9</span>&gt;</span> info replication
+<span class="token comment"># Replication</span>
+role:master
+connected_slaves:0
+master_failover_state:no-failover
+master_replid:4b24b632e7f8ccac9cb9e995639ec01c5a73e45f
+master_replid2:0000000000000000000000000000000000000000
+master_repl_offset:0
+second_repl_offset:-1
+repl_backlog_active:0
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:0
+repl_backlog_histlen:0
+
+</code></pre></div></li> <li><p>在启动sentinel后，使用<code>docker exec -it redis-sentinel-1 bash</code>,进入sentinel三个节点（一个即可），然后执行<code>redis-cli -p 26379</code>连接redis，然后执行<code>info sentinel</code>查看哨兵中当前redis的主节点信息及注册节点数</p> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token punctuation">[</span>root@centos7 sentinel<span class="token punctuation">]</span><span class="token comment"># docker exec -it redis-sentinel-1 bash</span>
+root@32f8c76dc918:/data<span class="token comment"># redis-cli -p 26379</span>
+<span class="token number">127.0</span>.0.1:2637<span class="token operator"><span class="token file-descriptor important">9</span>&gt;</span> info sentinel
+<span class="token comment"># Sentinel</span>
+sentinel_masters:1
+sentinel_tilt:0
+sentinel_tilt_since_seconds:-1
+sentinel_running_scripts:0
+sentinel_scripts_queue_length:0
+sentinel_simulate_failure_flags:0
+master0:name<span class="token operator">=</span>mymaster,status<span class="token operator">=</span>ok,address<span class="token operator">=</span><span class="token number">192.168</span>.232.130:6379,slaves<span class="token operator">=</span><span class="token number">3</span>,sentinels<span class="token operator">=</span><span class="token number">3</span>
+</code></pre></div></li> <li><p>然后再回到执行第一步命令，在redis中查看主从状态，此时主节点信息和sentinel哨兵中显示的主节点信息一致</p> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token number">127.0</span>.0.1:637<span class="token operator"><span class="token file-descriptor important">9</span>&gt;</span> info replication
+Error: Broken pipe
+not connected<span class="token operator">&gt;</span> info replication
+<span class="token comment"># Replication</span>
+role:slave
+master_host:172.18.0.1
+master_port:6379
+master_link_status:down
+master_last_io_seconds_ago:-1
+master_sync_in_progress:0
+slave_read_repl_offset:6817
+slave_repl_offset:6817
+master_link_down_since_seconds:-1
+slave_priority:100
+slave_read_only:1
+replica_announced:1
+connected_slaves:2
+slave0:ip<span class="token operator">=</span><span class="token number">172.18</span>.0.1,port<span class="token operator">=</span><span class="token number">6379</span>,state<span class="token operator">=</span>online,offset<span class="token operator">=</span><span class="token number">6817</span>,lag<span class="token operator">=</span><span class="token number">0</span>
+slave1:ip<span class="token operator">=</span><span class="token number">172.18</span>.0.1,port<span class="token operator">=</span><span class="token number">6379</span>,state<span class="token operator">=</span>online,offset<span class="token operator">=</span><span class="token number">6817</span>,lag<span class="token operator">=</span><span class="token number">0</span>
+master_failover_state:no-failover
+master_replid:8cc606b65ace0e6ce04006c38fe5610c3e46b78d
+master_replid2:bea30e1b7447b84f0bf5e284ac58ff48e92d74e0
+master_repl_offset:6817
+second_repl_offset:2861
+repl_backlog_active:1
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:1
+repl_backlog_histlen:6817
+</code></pre></div></li></ul> <h2 id="_3、创建测试项目"><a href="#_3、创建测试项目" class="header-anchor">#</a> 3、创建测试项目</h2> <p>创建springboot项目</p> <h3 id="_1-添加依赖"><a href="#_1-添加依赖" class="header-anchor">#</a> 1）添加依赖</h3> <div class="language-xml extra-class"><pre class="language-xml"><code>		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-boot-starter-data-redis<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre></div><h3 id="_2-配置信息"><a href="#_2-配置信息" class="header-anchor">#</a> 2）配置信息</h3> <div class="language-yaml extra-class"><pre class="language-yaml"><code><span class="token key atrule">server</span><span class="token punctuation">:</span>
+  <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8080</span>
+<span class="token key atrule">spring</span><span class="token punctuation">:</span>
+  <span class="token key atrule">application</span><span class="token punctuation">:</span>
+    <span class="token key atrule">name</span><span class="token punctuation">:</span> redissentinel
+  <span class="token key atrule">redis</span><span class="token punctuation">:</span>
+    <span class="token key atrule">sentinel</span><span class="token punctuation">:</span>
+      <span class="token key atrule">master</span><span class="token punctuation">:</span> mymaster
+      <span class="token comment">#哨兵集群的地址（修改为虚拟机ip）</span>
+      <span class="token key atrule">nodes</span><span class="token punctuation">:</span> 192.168.232.130<span class="token punctuation">:</span><span class="token number">26379</span><span class="token punctuation">,</span>192.168.232.130<span class="token punctuation">:</span><span class="token number">26380</span><span class="token punctuation">,</span>192.168.232.130<span class="token punctuation">:</span><span class="token number">26381</span>
+    <span class="token key atrule">jedis</span><span class="token punctuation">:</span>
+      <span class="token key atrule">pool</span><span class="token punctuation">:</span>
+        <span class="token key atrule">max-active</span><span class="token punctuation">:</span> <span class="token number">8</span>
+        <span class="token key atrule">max-idle</span><span class="token punctuation">:</span> <span class="token number">8</span>
+        <span class="token key atrule">min-idle</span><span class="token punctuation">:</span> <span class="token number">0</span>
+        <span class="token key atrule">max-wait</span><span class="token punctuation">:</span> <span class="token number">-1</span>
+</code></pre></div><h3 id="_3-核心代码"><a href="#_3-核心代码" class="header-anchor">#</a> 3）核心代码</h3> <ol><li><p>RedisConfig</p> <div class="language-java extra-class"><pre class="language-java"><code><span class="token comment">/**
+ * redis配置
+ */</span>
+<span class="token annotation punctuation">@Configuration</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RedisConfig</span> <span class="token punctuation">{</span>
+
+    <span class="token comment">/**
+     * 方法描述： 初始化redis连接
+     * @param factory redis连接工厂
+     * @return {@link RedisTemplate}
+     */</span>
+    <span class="token annotation punctuation">@Bean</span>
+    <span class="token keyword">public</span> <span class="token class-name">RedisTemplate</span> <span class="token function">redisTemplate</span><span class="token punctuation">(</span><span class="token class-name">RedisConnectionFactory</span> factory<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 新建redisTemplate对象</span>
+        <span class="token class-name">RedisTemplate</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">,</span> <span class="token class-name">Object</span><span class="token punctuation">&gt;</span></span> template <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">RedisTemplate</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// 设置工厂</span>
+        template<span class="token punctuation">.</span><span class="token function">setConnectionFactory</span><span class="token punctuation">(</span>factory<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//序列化配置</span>
+        <span class="token class-name">Jackson2JsonRedisSerializer</span> jackson2JsonRedisSerializer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Jackson2JsonRedisSerializer</span><span class="token punctuation">(</span><span class="token class-name">Object</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">StringRedisSerializer</span> stringRedisSerializer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringRedisSerializer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//1，用StringRedisSerializer进行序列化的值，在Java和Redis中保存的内容是一样的</span>
+        <span class="token comment">//2，用Jackson2JsonRedisSerializer进行序列化的值，在Redis中保存的内容，比Java中多了一对双引号。</span>
+        <span class="token comment">//3，用JdkSerializationRedisSerializer进行序列化的值，对于Key-Value的Value来说，是在Redis中是不可读的。对于Hash的Value来说，比Java的内容多了一些字符。</span>
+        <span class="token comment">//如果Key的Serializer也用和Value相同的Serializer的话，在Redis中保存的内容和上面Value的差异是一样的，所以我们保存时，只用StringRedisSerializer进行序列化</span>
+        <span class="token comment">// key采用String的序列化方式</span>
+        template<span class="token punctuation">.</span><span class="token function">setKeySerializer</span><span class="token punctuation">(</span>stringRedisSerializer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// value序列化方式采用jackson</span>
+        template<span class="token punctuation">.</span><span class="token function">setValueSerializer</span><span class="token punctuation">(</span>stringRedisSerializer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// hash的key也采用String的序列化方式</span>
+        template<span class="token punctuation">.</span><span class="token function">setHashKeySerializer</span><span class="token punctuation">(</span>stringRedisSerializer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// hash的value序列化方式采用jackson</span>
+        template<span class="token punctuation">.</span><span class="token function">setHashValueSerializer</span><span class="token punctuation">(</span>stringRedisSerializer<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// 返回redisTemplate对象</span>
+        <span class="token keyword">return</span> template<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+</code></pre></div></li> <li><p>RedisThreadPoolConfig</p></li></ol> <div class="language-java extra-class"><pre class="language-java"><code><span class="token comment">/**
+ * redis测试线程池
+ */</span>
+<span class="token annotation punctuation">@Configuration</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RedisThreadPoolConfig</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@Bean</span><span class="token punctuation">(</span><span class="token string">&quot;redisThreadPool&quot;</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token class-name">Executor</span> <span class="token function">msgThreadPool</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//获取当前机器的核数</span>
+        <span class="token keyword">int</span> cpuNum <span class="token operator">=</span> <span class="token class-name">Runtime</span><span class="token punctuation">.</span><span class="token function">getRuntime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">availableProcessors</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">ThreadPoolTaskExecutor</span> executor <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ThreadPoolTaskExecutor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//配置核心线程数cpuNum</span>
+        executor<span class="token punctuation">.</span><span class="token function">setCorePoolSize</span><span class="token punctuation">(</span>cpuNum<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//配置最大线程数cpuNum * 2</span>
+        executor<span class="token punctuation">.</span><span class="token function">setMaxPoolSize</span><span class="token punctuation">(</span>cpuNum <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//配置队列大小</span>
+        executor<span class="token punctuation">.</span><span class="token function">setQueueCapacity</span><span class="token punctuation">(</span><span class="token number">1000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//线程存活时间</span>
+        executor<span class="token punctuation">.</span><span class="token function">setKeepAliveSeconds</span><span class="token punctuation">(</span><span class="token number">60</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//配置线程池中的线程的名称前缀</span>
+        executor<span class="token punctuation">.</span><span class="token function">setThreadNamePrefix</span><span class="token punctuation">(</span><span class="token string">&quot;redis-pool-thread-&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// CALLER_RUNS：不在新线程中执行任务，而是有调用者所在的线程来执行</span>
+        executor<span class="token punctuation">.</span><span class="token function">setRejectedExecutionHandler</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">ThreadPoolExecutor<span class="token punctuation">.</span>CallerRunsPolicy</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//执行初始化</span>
+        executor<span class="token punctuation">.</span><span class="token function">initialize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> executor<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre></div><ol start="3"><li>RedisConstant</li></ol> <div class="language-java extra-class"><pre class="language-java"><code><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RedisConstant</span> <span class="token punctuation">{</span>
+
+    <span class="token comment">/**
+     * 模拟数据，key报存位置
+     */</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">&gt;</span></span> redisKeyList <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+
+</code></pre></div><ol start="4"><li>RedisUtil</li></ol> <div class="language-java extra-class"><pre class="language-java"><code><span class="token comment">/**
+ * redis工具类
+ */</span>
+<span class="token annotation punctuation">@Component</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RedisUtil</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">private</span> <span class="token class-name">RedisTemplate</span> redisTemplate<span class="token punctuation">;</span>
+
+    <span class="token comment">// =============================common============================</span>
+
+    <span class="token comment">/**
+     * 指定缓存失效时间
+     *
+     * @param key  键
+     * @param time 时间(秒)
+     * @return
+     */</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">expire</span><span class="token punctuation">(</span><span class="token class-name">String</span> key<span class="token punctuation">,</span> <span class="token keyword">long</span> time<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>time <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                redisTemplate<span class="token punctuation">.</span><span class="token function">expire</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> time<span class="token punctuation">,</span> <span class="token class-name">TimeUnit</span><span class="token punctuation">.</span><span class="token constant">SECONDS</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/**
+     * 根据key 获取过期时间
+     *
+     * @param key 键 不能为null
+     * @return 时间(秒) 返回0代表为永久有效
+     */</span>
+    <span class="token keyword">public</span> <span class="token keyword">long</span> <span class="token function">getExpire</span><span class="token punctuation">(</span><span class="token class-name">String</span> key<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> redisTemplate<span class="token punctuation">.</span><span class="token function">getExpire</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> <span class="token class-name">TimeUnit</span><span class="token punctuation">.</span><span class="token constant">SECONDS</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/**
+     * 判断key是否存在
+     *
+     * @param key 键
+     * @return true 存在 false不存在
+     */</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">hasKey</span><span class="token punctuation">(</span><span class="token class-name">String</span> key<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> redisTemplate<span class="token punctuation">.</span><span class="token function">hasKey</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/**
+     * 删除缓存
+     *
+     * @param key 可以传一个值 或多个
+     */</span>
+    <span class="token annotation punctuation">@SuppressWarnings</span><span class="token punctuation">(</span><span class="token string">&quot;unchecked&quot;</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">del</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> key<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>key <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> key<span class="token punctuation">.</span>length <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>key<span class="token punctuation">.</span>length <span class="token operator">==</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                redisTemplate<span class="token punctuation">.</span><span class="token function">delete</span><span class="token punctuation">(</span>key<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                redisTemplate<span class="token punctuation">.</span><span class="token function">delete</span><span class="token punctuation">(</span><span class="token class-name">CollectionUtils</span><span class="token punctuation">.</span><span class="token function">arrayToList</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// ============================String=============================</span>
+
+    <span class="token comment">/**
+     * 普通缓存获取
+     *
+     * @param key 键
+     * @return 值
+     */</span>
+    <span class="token keyword">public</span> <span class="token class-name">Object</span> <span class="token function">get</span><span class="token punctuation">(</span><span class="token class-name">String</span> key<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> key <span class="token operator">==</span> <span class="token keyword">null</span> <span class="token operator">?</span> <span class="token keyword">null</span> <span class="token operator">:</span> redisTemplate<span class="token punctuation">.</span><span class="token function">opsForValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/**
+     * 普通缓存放入
+     *
+     * @param key   键
+     * @param value 值
+     * @return true成功 false失败
+     */</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">set</span><span class="token punctuation">(</span><span class="token class-name">String</span> key<span class="token punctuation">,</span> <span class="token class-name">Object</span> value<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            redisTemplate<span class="token punctuation">.</span><span class="token function">opsForValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/**
+     * 普通缓存放入并设置时间
+     *
+     * @param key   键
+     * @param value 值
+     * @param time  时间(秒) time要大于0 如果time小于等于0 将设置无限期
+     * @return true成功 false 失败
+     */</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">set</span><span class="token punctuation">(</span><span class="token class-name">String</span> key<span class="token punctuation">,</span> <span class="token class-name">Object</span> value<span class="token punctuation">,</span> <span class="token keyword">long</span> time<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>time <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                redisTemplate<span class="token punctuation">.</span><span class="token function">opsForValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> value<span class="token punctuation">,</span> time<span class="token punctuation">,</span> <span class="token class-name">TimeUnit</span><span class="token punctuation">.</span><span class="token constant">SECONDS</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                <span class="token function">set</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre></div><ol start="5"><li>RedisInit</li></ol> <div class="language-java extra-class"><pre class="language-java"><code><span class="token comment">/**
+ * 项目启动后自动执行redis测试
+ */</span>
+<span class="token annotation punctuation">@Slf4j</span>
+<span class="token annotation punctuation">@Component</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RedisInit</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">private</span> <span class="token class-name">RedisService</span> redisService<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@PostConstruct</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+
+        <span class="token comment">/*
+         * 循环10000次，每次间隔 400毫秒
+         */</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">100000</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            redisService<span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+           <span class="token keyword">if</span><span class="token punctuation">(</span>i<span class="token operator">&gt;</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+               redisService<span class="token punctuation">.</span><span class="token function">getValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+           <span class="token punctuation">}</span>
+            <span class="token keyword">try</span> <span class="token punctuation">{</span>
+                <span class="token class-name">TimeUnit</span><span class="token punctuation">.</span><span class="token constant">MILLISECONDS</span><span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">400</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InterruptedException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                log<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">&quot;延时执行异常&quot;</span><span class="token punctuation">,</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre></div><ol start="6"><li>RedisService</li></ol> <div class="language-java extra-class"><pre class="language-java"><code><span class="token comment">/**
+ * redis测试实际执行逻辑
+ */</span>
+<span class="token annotation punctuation">@Slf4j</span>
+<span class="token annotation punctuation">@Service</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RedisService</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">private</span> <span class="token class-name">RedisUtil</span> redisUtil<span class="token punctuation">;</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token class-name">Random</span> random <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Random</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">/**
+     * 线程异步添加数据到redis中
+     * @param i 当前添加次数
+     */</span>
+    <span class="token annotation punctuation">@Async</span><span class="token punctuation">(</span><span class="token string">&quot;redisThreadPool&quot;</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setValue</span><span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token class-name">String</span> key <span class="token operator">=</span> <span class="token string">&quot;key&quot;</span><span class="token operator">+</span>i<span class="token punctuation">;</span>
+        <span class="token class-name">String</span> value <span class="token operator">=</span> <span class="token string">&quot;value&quot;</span><span class="token operator">+</span>i<span class="token punctuation">;</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            redisUtil<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token class-name">RedisConstant</span><span class="token punctuation">.</span>redisKeyList<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">&quot;redis写数据key：{},value={}&quot;</span><span class="token punctuation">,</span>key<span class="token punctuation">,</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            log<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">&quot;redis写数据：key：{}，value：{}失败，{}&quot;</span><span class="token punctuation">,</span>key<span class="token punctuation">,</span>value<span class="token punctuation">,</span>e<span class="token punctuation">.</span><span class="token function">getMessage</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">/**
+     *在redis历史添加数据中，随机选取一个key值，进行查找对应value
+     */</span>
+    <span class="token annotation punctuation">@Async</span><span class="token punctuation">(</span><span class="token string">&quot;redisThreadPool&quot;</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">getValue</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> index <span class="token operator">=</span> random<span class="token punctuation">.</span><span class="token function">nextInt</span><span class="token punctuation">(</span><span class="token class-name">RedisConstant</span><span class="token punctuation">.</span>redisKeyList<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">String</span> key  <span class="token operator">=</span> <span class="token class-name">RedisConstant</span><span class="token punctuation">.</span>redisKeyList<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>index<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token class-name">String</span> value <span class="token operator">=</span> redisUtil<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">&quot;redis查询数据key={},value={}&quot;</span><span class="token punctuation">,</span>key<span class="token punctuation">,</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            log<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">&quot;redis读数据key:{}：失败，{}&quot;</span><span class="token punctuation">,</span>e<span class="token punctuation">.</span><span class="token function">getMessage</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre></div><h3 id="_4-启动项目"><a href="#_4-启动项目" class="header-anchor">#</a> 4）启动项目</h3> <p>启动项目后，会看到控制台打印不断的在写入redis，并且i&gt;10后开始随机读取redis中的值</p> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:04.147  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> w.s.c.ServletWebServerApplicationContext <span class="token builtin class-name">:</span> Root WebApplicationContext: initialization completed <span class="token keyword">in</span> <span class="token number">1096</span> ms
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:05.088  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key0,value<span class="token operator">=</span>value0
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:05.490  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key1,value<span class="token operator">=</span>value1
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:05.893  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key2,value<span class="token operator">=</span>value2
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:06.294  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key3,value<span class="token operator">=</span>value3
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:06.696  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key4,value<span class="token operator">=</span>value4
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:07.098  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key5,value<span class="token operator">=</span>value5
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:07.500  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key6,value<span class="token operator">=</span>value6
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:07.902  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key7,value<span class="token operator">=</span>value7
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:08.304  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key8,value<span class="token operator">=</span>value8
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:08.706  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key9,value<span class="token operator">=</span>value9
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:09.109  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key10,value<span class="token operator">=</span>value10
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:09.511  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key11,value<span class="token operator">=</span>value11
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:09.513  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis查询数据key<span class="token operator">=</span>key10,value<span class="token operator">=</span>value10
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:09.915  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key12,value<span class="token operator">=</span>value12
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:09.916  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis查询数据key<span class="token operator">=</span>key10,value<span class="token operator">=</span>value10
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:10.318  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key13,value<span class="token operator">=</span>value13
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:10.319  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis查询数据key<span class="token operator">=</span>key0,value<span class="token operator">=</span>value0
+<span class="token number">2022</span>-10-27 <span class="token number">17</span>:59:10.721  INFO <span class="token number">29224</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key14,value<span class="token operator">=</span>value14
+</code></pre></div><h3 id="_5-高可用测试"><a href="#_5-高可用测试" class="header-anchor">#</a> 5）高可用测试</h3> <p>步骤（启动项目后）：</p> <blockquote><p>下方展示是操作两次的结果，第一次在控制台日志上没有显示主节点切换痕迹</p></blockquote> <ol><li><p>哨兵中查看当前redis主节点（比如master），手动停止master节点：<code>docker-compose down master</code></p> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token punctuation">[</span>root@centos7 redis<span class="token punctuation">]</span><span class="token comment"># docker-compose stop master</span>
+<span class="token punctuation">[</span>+<span class="token punctuation">]</span> Running <span class="token number">1</span>/1
+ ⠿ Container redis-master  Stopped                                                                                                                                                    <span class="token number">0</span>.2s
+<span class="token punctuation">[</span>root@centos7 redis<span class="token punctuation">]</span><span class="token comment"># docker-compose ps</span>
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+redis-master        <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   master              exited <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>          
+redis-slave-1       <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   slave1              running             <span class="token number">0.0</span>.0.0:6380-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp, :::6380-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp
+redis-slave-2       <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   slave2              running             <span class="token number">0.0</span>.0.0:6381-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp, :::6381-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp
+<span class="token punctuation">[</span>root@centos7 redis<span class="token punctuation">]</span><span class="token comment"># docker-compose restart master</span>
+<span class="token punctuation">[</span>+<span class="token punctuation">]</span> Running <span class="token number">1</span>/1
+ ⠿ Container redis-master  Started                                                                                                                                                    <span class="token number">0</span>.5s
+<span class="token punctuation">[</span>root@centos7 redis<span class="token punctuation">]</span><span class="token comment"># docker-compose ps</span>
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+redis-master        <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   master              running             <span class="token number">0.0</span>.0.0:6379-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp, :::6379-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp
+redis-slave-1       <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   slave1              running             <span class="token number">0.0</span>.0.0:6380-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp, :::6380-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp
+redis-slave-2       <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   slave2              running             <span class="token number">0.0</span>.0.0:6381-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp, :::6381-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp
+
+</code></pre></div></li> <li><p>然后观察控制台日志redis的读写情况是否正常，以及在sentinel中查看主节点状态（操作参考）</p> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token number">2022</span>-10-27 <span class="token number">16</span>:46:40.569  INFO <span class="token number">24800</span> --- <span class="token punctuation">[</span>xecutorLoop-1-4<span class="token punctuation">]</span> i.l.core.protocol.ConnectionWatchdog     <span class="token builtin class-name">:</span> Reconnecting, last destination was /192.168.232.130:6380
+<span class="token number">2022</span>-10-27 <span class="token number">16</span>:46:42.610  WARN <span class="token number">24800</span> --- <span class="token punctuation">[</span>ioEventLoop-4-4<span class="token punctuation">]</span> i.l.core.protocol.ConnectionWatchdog     <span class="token builtin class-name">:</span> Cannot reconnect to <span class="token punctuation">[</span><span class="token number">192.168</span>.232.130:6380<span class="token punctuation">]</span>: Connection refused: no further information: /192.168.232.130:6380
+<span class="token number">2022</span>-10-27 <span class="token number">16</span>:46:46.869  INFO <span class="token number">24800</span> --- <span class="token punctuation">[</span>xecutorLoop-1-2<span class="token punctuation">]</span> i.l.core.protocol.ConnectionWatchdog     <span class="token builtin class-name">:</span> Reconnecting, last destination was <span class="token number">192.168</span>.232.130:6380
+<span class="token number">2022</span>-10-27 <span class="token number">16</span>:46:48.902  WARN <span class="token number">24800</span> --- <span class="token punctuation">[</span>ioEventLoop-4-2<span class="token punctuation">]</span> i.l.core.protocol.ConnectionWatchdog     <span class="token builtin class-name">:</span> Cannot reconnect to <span class="token punctuation">[</span><span class="token number">192.168</span>.232.130:6380<span class="token punctuation">]</span>: Connection refused: no further information: /192.168.232.130:6380
+<span class="token number">2022</span>-10-27 <span class="token number">16</span>:46:53.168  INFO <span class="token number">24800</span> --- <span class="token punctuation">[</span>xecutorLoop-1-8<span class="token punctuation">]</span> i.l.core.protocol.ConnectionWatchdog     <span class="token builtin class-name">:</span> Reconnecting, last destination was <span class="token number">192.168</span>.232.130:6380
+<span class="token number">2022</span>-10-27 <span class="token number">16</span>:46:53.174  INFO <span class="token number">24800</span> --- <span class="token punctuation">[</span>ioEventLoop-4-8<span class="token punctuation">]</span> i.l.core.protocol.ReconnectionHandler    <span class="token builtin class-name">:</span> Reconnected to <span class="token number">192.168</span>.232.130:6381
+<span class="token number">2022</span>-10-27 <span class="token number">16</span>:46:53.174  INFO <span class="token number">24800</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> com.mengl.sentinel.service.RedisService  <span class="token builtin class-name">:</span> redis写数据key：key470,value<span class="token operator">=</span>value470
+</code></pre></div><div class="language-sh extra-class"><pre class="language-sh"><code><span class="token punctuation">[</span>root@centos7 sentinel<span class="token punctuation">]</span><span class="token comment"># docker exec -it redis-sentinel-1 bash</span>
+root@cd6a26c2b10d:/data<span class="token comment"># redis-cli -p 26379</span>
+<span class="token number">127.0</span>.0.1:2637<span class="token operator"><span class="token file-descriptor important">9</span>&gt;</span> info sentinel
+<span class="token comment"># Sentinel</span>
+sentinel_masters:1
+sentinel_tilt:0
+sentinel_tilt_since_seconds:-1
+sentinel_running_scripts:0
+sentinel_scripts_queue_length:0
+sentinel_simulate_failure_flags:0
+master0:name<span class="token operator">=</span>mymaster,status<span class="token operator">=</span>sdown,address<span class="token operator">=</span><span class="token number">192.168</span>.232.130:6379,slaves<span class="token operator">=</span><span class="token number">3</span>,sentinels<span class="token operator">=</span><span class="token number">3</span>
+<span class="token number">127.0</span>.0.1:2637<span class="token operator"><span class="token file-descriptor important">9</span>&gt;</span> info sentinel
+<span class="token comment"># Sentinel</span>
+sentinel_masters:1
+sentinel_tilt:0
+sentinel_tilt_since_seconds:-1
+sentinel_running_scripts:0
+sentinel_scripts_queue_length:0
+sentinel_simulate_failure_flags:0
+master0:name<span class="token operator">=</span>mymaster,status<span class="token operator">=</span>ok,address<span class="token operator">=</span><span class="token number">192.168</span>.232.130:6380,slaves<span class="token operator">=</span><span class="token number">3</span>,sentinels<span class="token operator">=</span><span class="token number">3</span>
+
+</code></pre></div></li> <li><p>手动重启（重点：重启不是启动）停止的，命令：<code>docker-compose restart master</code></p></li></ol> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token punctuation">[</span>root@centos7 redis<span class="token punctuation">]</span><span class="token comment"># docker-compose stop slave1</span>
+<span class="token punctuation">[</span>+<span class="token punctuation">]</span> Running <span class="token number">1</span>/1
+ ⠿ Container redis-slave-1  Stopped                                                                                                                                                   <span class="token number">0</span>.8s
+<span class="token punctuation">[</span>root@centos7 redis<span class="token punctuation">]</span><span class="token comment"># docker-compose restart slave1</span>
+<span class="token punctuation">[</span>+<span class="token punctuation">]</span> Running <span class="token number">1</span>/1
+ ⠿ Container redis-slave-1  Started                                                                                                                                                   <span class="token number">0</span>.7s
+<span class="token punctuation">[</span>root@centos7 redis<span class="token punctuation">]</span><span class="token comment"># docker-compose ps</span>
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+redis-master        <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   master              running             <span class="token number">0.0</span>.0.0:6379-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp, :::6379-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp
+redis-slave-1       <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   slave1              running             <span class="token number">0.0</span>.0.0:6380-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp, :::6380-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp
+redis-slave-2       <span class="token string">&quot;docker-entrypoint.s…&quot;</span>   slave2              running             <span class="token number">0.0</span>.0.0:6381-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp, :::6381-<span class="token operator">&gt;</span><span class="token number">6379</span>/tcp
+
+</code></pre></div><h3 id="_6-注意事项"><a href="#_6-注意事项" class="header-anchor">#</a> 6）注意事项</h3> <ol><li>redis是在哨兵集群启动起来后才进行选举，区分主从的;</li> <li>其中操作的命令要注意，容器重启必须使用命令：<code>docker-compose restart slave1</code></li></ol> <ul><li><a href="/guide/database/redis/principle/redis_sentinel">哨兵模式原理</a></li></ul></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/guide/database/redis/operation/redis_cluster.html" class="prev">
+        Redis集群模式实战
+      </a></span> <!----></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/assets/js/app.874a2ac8.js" defer></script><script src="/assets/js/2.57a39ff2.js" defer></script><script src="/assets/js/17.eb749829.js" defer></script>
+  </body>
+</html>

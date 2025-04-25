@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>MYSQL 主从搭建 | 观山笔记</title>
+    <meta name="generator" content="VuePress 1.9.7">
+    <link rel="icon" href="/logo.png">
+    <meta name="description" content="不畏浮云遮望眼,只缘身在此山中">
+    
+    <link rel="preload" href="/assets/css/0.styles.74b8a50a.css" as="style"><link rel="preload" href="/assets/js/app.874a2ac8.js" as="script"><link rel="preload" href="/assets/js/2.57a39ff2.js" as="script"><link rel="preload" href="/assets/js/7.04ed8f94.js" as="script"><link rel="prefetch" href="/assets/js/10.425a5f86.js"><link rel="prefetch" href="/assets/js/11.b7744736.js"><link rel="prefetch" href="/assets/js/12.d436b97f.js"><link rel="prefetch" href="/assets/js/13.cb56296f.js"><link rel="prefetch" href="/assets/js/14.d51da068.js"><link rel="prefetch" href="/assets/js/15.d05b0ae2.js"><link rel="prefetch" href="/assets/js/16.20eb1105.js"><link rel="prefetch" href="/assets/js/17.eb749829.js"><link rel="prefetch" href="/assets/js/18.8e2af4ca.js"><link rel="prefetch" href="/assets/js/19.f6c575ea.js"><link rel="prefetch" href="/assets/js/20.99aec0e4.js"><link rel="prefetch" href="/assets/js/21.d99e69e0.js"><link rel="prefetch" href="/assets/js/22.7ea41db6.js"><link rel="prefetch" href="/assets/js/23.1d81cb36.js"><link rel="prefetch" href="/assets/js/3.e53ab11f.js"><link rel="prefetch" href="/assets/js/4.db57cb1a.js"><link rel="prefetch" href="/assets/js/5.b52c7831.js"><link rel="prefetch" href="/assets/js/6.20c0053e.js"><link rel="prefetch" href="/assets/js/8.8b6e5f49.js"><link rel="prefetch" href="/assets/js/9.e770c2ed.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.74b8a50a.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">观山笔记</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="java" class="dropdown-title"><span class="title">java</span> <span class="arrow down"></span></button> <button type="button" aria-label="java" class="mobile-dropdown-title"><span class="title">java</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/guide/thread/" class="nav-link">
+  多线程
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="数据库" class="dropdown-title"><span class="title">数据库</span> <span class="arrow down"></span></button> <button type="button" aria-label="数据库" class="mobile-dropdown-title"><span class="title">数据库</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/guide/database/mysql/" class="nav-link router-link-active">
+  MYSQL
+</a></li><li class="dropdown-item"><!----> <a href="/guide/database/redis/" class="nav-link">
+  Redis
+</a></li><li class="dropdown-item"><!----> <a href="/guide/database/es/" class="nav-link">
+  ElasticSearch
+</a></li></ul></div></div><div class="nav-item"><a href="https://baidu.com" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  百度
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="java" class="dropdown-title"><span class="title">java</span> <span class="arrow down"></span></button> <button type="button" aria-label="java" class="mobile-dropdown-title"><span class="title">java</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/guide/thread/" class="nav-link">
+  多线程
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="数据库" class="dropdown-title"><span class="title">数据库</span> <span class="arrow down"></span></button> <button type="button" aria-label="数据库" class="mobile-dropdown-title"><span class="title">数据库</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/guide/database/mysql/" class="nav-link router-link-active">
+  MYSQL
+</a></li><li class="dropdown-item"><!----> <a href="/guide/database/redis/" class="nav-link">
+  Redis
+</a></li><li class="dropdown-item"><!----> <a href="/guide/database/es/" class="nav-link">
+  ElasticSearch
+</a></li></ul></div></div><div class="nav-item"><a href="https://baidu.com" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  百度
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>MYSQL</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/guide/database/mysql/" aria-current="page" class="sidebar-link">初识MYSQL</a></li><li><section class="sidebar-group is-sub-group depth-1"><p class="sidebar-heading"><span>理论</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/guide/database/mysql/principle/01MYSQL.html" class="sidebar-link">MYSQL理论</a></li></ul></section></li><li><section class="sidebar-group is-sub-group depth-1"><p class="sidebar-heading open"><span>实战</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/guide/database/mysql/operation/01MYSQLReadWriteSpliting.html" aria-current="page" class="active sidebar-link">MYSQL 主从搭建</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/guide/database/mysql/operation/01MYSQLReadWriteSpliting.html#一、背景" class="sidebar-link">一、背景</a></li><li class="sidebar-sub-header"><a href="/guide/database/mysql/operation/01MYSQLReadWriteSpliting.html#二、mysql主从模式简介" class="sidebar-link">二、MYSQL主从模式简介</a></li><li class="sidebar-sub-header"><a href="/guide/database/mysql/operation/01MYSQLReadWriteSpliting.html#三、环境搭建" class="sidebar-link">三、环境搭建</a></li><li class="sidebar-sub-header"><a href="/guide/database/mysql/operation/01MYSQLReadWriteSpliting.html#四、springboot-mysql主从" class="sidebar-link">四、SpringBoot+MYSQL主从</a></li></ul></li></ul></section></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="mysql-主从搭建"><a href="#mysql-主从搭建" class="header-anchor">#</a> MYSQL 主从搭建</h1> <h2 id="一、背景"><a href="#一、背景" class="header-anchor">#</a> 一、背景</h2> <blockquote><p>因为在项目开发需求，本地无法直接连接服务器MYSQL主从，考虑在开发测试时，可以测试方便发现基本问题。考虑在本地虚拟机中搭建，模拟测试环境及线上环境，故选用虚拟机的docker来搭建。选择搭建一主两从</p></blockquote> <h2 id="二、mysql主从模式简介"><a href="#二、mysql主从模式简介" class="header-anchor">#</a> 二、MYSQL主从模式简介</h2> <p><strong>读写分离，顾名思义就是读和写分开，更具体来说，就是：</strong></p> <ul><li>写操作在主数据库进行</li> <li>读操作在从数据库进行</li></ul> <p>使用读写分离的根本目的就是为了提高并发性能，如果读写都在同一台<code>MySQL</code>上实现，相信会不如一台<code>MySQL</code>写，另外两台<code>MySQL</code>读这样的配置性能高。另一方面，在很多时候都是读操作的请求要远远高于写操作，这样就显得读写分离非常有必要了。</p> <p><strong>主从复制，顾名思义就是把主库的数据复制到从库中</strong>，因为读写分离之后，写操作都在主库进行，但是读操作是在从库进行的，也就是说，主库上的数据如果不能复制到从库中，那么从库就不会读到主库中的数据。严格意义上说，读写分离并不要求主从复制，只需要在主库写从库读即可，但是如果没有了主从复制，读写分离将失去了它的意义。因此读写分离通常与主从复制配合使用。</p> <p>因为本示例使用的是<code>MySQL</code>，这里就说一下<code>MySQL</code>主从复制的原理，如下图所示：
+<img src="/assets/img/2022080910120811.9bbff0d8.png" alt="img"></p> <p><strong>工作流程如下：</strong></p> <ul><li>主库修改数据后，将修改日志写入<code>binlog</code></li> <li>从库的<code>I/O</code>线程读取主库的<code>binlog</code>，并拷贝到从库本地的<code>binlog</code>中</li> <li>从库本地的<code>binlog</code>被<code>SQL</code>线程读取，执行其中的内容并同步到从库中</li></ul> <h2 id="三、环境搭建"><a href="#三、环境搭建" class="header-anchor">#</a> 三、环境搭建</h2> <h3 id="_1、前置环境"><a href="#_1、前置环境" class="header-anchor">#</a> 1、前置环境</h3> <p>基础环境安装：</p> <ul><li>docker</li> <li>docker-compose</li> <li>mysql镜像版本：mysql:5.7</li></ul> <h3 id="_2、创建以下目录"><a href="#_2、创建以下目录" class="header-anchor">#</a> 2、创建以下目录：</h3> <ul><li>mysql
+<ul><li>docker-compose.yml</li> <li>config
+<ul><li>master.cnf</li> <li>slave1.cnf</li> <li>slave2.cnf</li></ul></li></ul></li></ul> <h3 id="_3、配置内容"><a href="#_3、配置内容" class="header-anchor">#</a> 3、配置内容</h3> <h4 id="docker-compose-yml"><a href="#docker-compose-yml" class="header-anchor">#</a> docker-compose.yml</h4> <div class="language-yml extra-class"><pre class="language-yml"><code><span class="token key atrule">version</span><span class="token punctuation">:</span> <span class="token string">'3.6'</span>
+<span class="token key atrule">services</span><span class="token punctuation">:</span>
+  <span class="token key atrule">mysql-master</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> mysql<span class="token punctuation">:</span><span class="token number">5.7</span>
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> mysql<span class="token punctuation">-</span>master
+    <span class="token key atrule">restart</span><span class="token punctuation">:</span> always
+    <span class="token key atrule">privileged</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
+    <span class="token key atrule">environment</span><span class="token punctuation">:</span>
+      <span class="token key atrule">MYSQL_ROOT_PASSWORD</span><span class="token punctuation">:</span> <span class="token number">123456</span>
+      <span class="token key atrule">TZ</span><span class="token punctuation">:</span> Asia/Shanghai
+    <span class="token key atrule">command</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>default<span class="token punctuation">-</span>authentication<span class="token punctuation">-</span>plugin=mysql_native_password
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>character<span class="token punctuation">-</span>set<span class="token punctuation">-</span>server=utf8mb4
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>collation<span class="token punctuation">-</span>server=utf8mb4_general_ci
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>explicit_defaults_for_timestamp=true
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>lower_case_table_names=1
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>max_allowed_packet=128M;
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> 3316<span class="token punctuation">:</span><span class="token number">3306</span>
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./config/master.cnf<span class="token punctuation">:</span>/etc/mysql/my.cnf
+  <span class="token key atrule">mysql-slave1</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> mysql<span class="token punctuation">:</span><span class="token number">5.7</span>
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> mysql<span class="token punctuation">-</span>slave1
+    <span class="token key atrule">restart</span><span class="token punctuation">:</span> always
+    <span class="token key atrule">privileged</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
+    <span class="token key atrule">environment</span><span class="token punctuation">:</span>
+      <span class="token key atrule">MYSQL_ROOT_PASSWORD</span><span class="token punctuation">:</span> <span class="token number">123456</span>
+      <span class="token key atrule">TZ</span><span class="token punctuation">:</span> Asia/Shanghai
+    <span class="token key atrule">command</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>default<span class="token punctuation">-</span>authentication<span class="token punctuation">-</span>plugin=mysql_native_password
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>character<span class="token punctuation">-</span>set<span class="token punctuation">-</span>server=utf8mb4
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>collation<span class="token punctuation">-</span>server=utf8mb4_general_ci
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>explicit_defaults_for_timestamp=true
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>lower_case_table_names=1
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>max_allowed_packet=128M;
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> 3317<span class="token punctuation">:</span><span class="token number">3306</span>
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./config/slave1.cnf<span class="token punctuation">:</span>/etc/mysql/my.cnf
+  <span class="token key atrule">mysql-slave2</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> mysql<span class="token punctuation">:</span><span class="token number">5.7</span>
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> mysql<span class="token punctuation">-</span>slave2
+    <span class="token key atrule">restart</span><span class="token punctuation">:</span> always
+    <span class="token key atrule">privileged</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
+    <span class="token key atrule">environment</span><span class="token punctuation">:</span>
+      <span class="token key atrule">MYSQL_ROOT_PASSWORD</span><span class="token punctuation">:</span> <span class="token number">123456</span>
+      <span class="token key atrule">TZ</span><span class="token punctuation">:</span> Asia/Shanghai
+    <span class="token key atrule">command</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>default<span class="token punctuation">-</span>authentication<span class="token punctuation">-</span>plugin=mysql_native_password
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>character<span class="token punctuation">-</span>set<span class="token punctuation">-</span>server=utf8mb4
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>collation<span class="token punctuation">-</span>server=utf8mb4_general_ci
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>explicit_defaults_for_timestamp=true
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>lower_case_table_names=1
+      <span class="token punctuation">-</span><span class="token punctuation">-</span>max_allowed_packet=128M;
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> 3318<span class="token punctuation">:</span><span class="token number">3306</span>
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./config/slave2.cnf<span class="token punctuation">:</span>/etc/mysql/my.cnf
+
+</code></pre></div><h4 id="master-cnf"><a href="#master-cnf" class="header-anchor">#</a> master.cnf</h4> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token punctuation">[</span>mysqld<span class="token punctuation">]</span>
+pid-file	<span class="token operator">=</span> /var/run/mysqld/mysqld.pid
+socket		<span class="token operator">=</span> /var/run/mysqld/mysqld.sock
+datadir		<span class="token operator">=</span> /var/lib/mysql
+<span class="token comment">#log-error	= /var/log/mysql/error.log</span>
+<span class="token comment"># By default we only accept connections from localhost</span>
+<span class="token comment">#bind-address	= 127.0.0.1</span>
+<span class="token comment"># Disabling symbolic-links is recommended to prevent assorted security risks</span>
+symbolic-links<span class="token operator">=</span><span class="token number">0</span>
+
+port        <span class="token operator">=</span> <span class="token number">3306</span>
+<span class="token comment">#全局唯一，取值[1,2^32-1]，默认为1</span>
+server-id <span class="token operator">=</span> <span class="token number">1</span>
+
+log-bin <span class="token operator">=</span> master-bin 
+<span class="token comment">#只保留7天的二进制日志，以防磁盘被日志占满(可选)</span>
+expire-logs-days <span class="token operator">=</span> <span class="token number">7</span>
+
+<span class="token comment">#不备份的数据库 （可选）</span>
+binlog-ignore-db<span class="token operator">=</span>information_schema  
+binlog-ignore-db<span class="token operator">=</span>performation_schema
+binlog-ignore-db<span class="token operator">=</span>sys
+
+</code></pre></div><h4 id="slave1-cnf"><a href="#slave1-cnf" class="header-anchor">#</a> slave1.cnf</h4> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token punctuation">[</span>mysqld<span class="token punctuation">]</span>
+pid-file	<span class="token operator">=</span> /var/run/mysqld/mysqld.pid
+socket		<span class="token operator">=</span> /var/run/mysqld/mysqld.sock
+datadir		<span class="token operator">=</span> /var/lib/mysql
+<span class="token comment">#log-error	= /var/log/mysql/error.log</span>
+<span class="token comment"># By default we only accept connections from localhost</span>
+<span class="token comment">#bind-address	= 127.0.0.1</span>
+<span class="token comment"># Disabling symbolic-links is recommended to prevent assorted security risks</span>
+symbolic-links<span class="token operator">=</span><span class="token number">0</span>
+
+port        <span class="token operator">=</span> <span class="token number">3306</span>
+<span class="token comment">#全局唯一，取值[1,2^32-1]，默认为1</span>
+server-id <span class="token operator">=</span> <span class="token number">2</span>
+
+<span class="token comment">#只保留7天的二进制日志，以防磁盘被日志占满(可选)</span>
+expire-logs-days <span class="token operator">=</span> <span class="token number">7</span>
+
+<span class="token comment">#不备份的数据库 （可选）</span>
+binlog-ignore-db<span class="token operator">=</span>information_schema  
+binlog-ignore-db<span class="token operator">=</span>performation_schema
+binlog-ignore-db<span class="token operator">=</span>sys
+
+<span class="token comment">## 开启二进制日志功能，以备Slave作为其它Slave的Master时使用</span>
+log-bin<span class="token operator">=</span>slave1-bin   
+<span class="token comment">## relay_log配置中继日志</span>
+<span class="token assign-left variable">relay_log</span><span class="token operator">=</span>mysql-relay-bin  
+<span class="token assign-left variable">read_only</span><span class="token operator">=</span><span class="token number">1</span>  <span class="token comment">## 设置为只读,该项如果不设置，表示slave可读可写</span>
+</code></pre></div><h4 id="slave2-cnf"><a href="#slave2-cnf" class="header-anchor">#</a> slave2.cnf</h4> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token punctuation">[</span>mysqld<span class="token punctuation">]</span>
+pid-file	<span class="token operator">=</span> /var/run/mysqld/mysqld.pid
+socket		<span class="token operator">=</span> /var/run/mysqld/mysqld.sock
+datadir		<span class="token operator">=</span> /var/lib/mysql
+<span class="token comment">#log-error	= /var/log/mysql/error.log</span>
+<span class="token comment"># By default we only accept connections from localhost</span>
+<span class="token comment">#bind-address	= 127.0.0.1</span>
+<span class="token comment"># Disabling symbolic-links is recommended to prevent assorted security risks</span>
+symbolic-links<span class="token operator">=</span><span class="token number">0</span>
+
+port        <span class="token operator">=</span> <span class="token number">3306</span>
+<span class="token comment">#全局唯一，取值[1,2^32-1]，默认为1</span>
+server-id <span class="token operator">=</span> <span class="token number">3</span>
+
+<span class="token comment">#只保留7天的二进制日志，以防磁盘被日志占满(可选)</span>
+expire-logs-days <span class="token operator">=</span> <span class="token number">7</span>
+
+<span class="token comment">#不备份的数据库 （可选）</span>
+binlog-ignore-db<span class="token operator">=</span>information_schema  
+binlog-ignore-db<span class="token operator">=</span>performation_schema
+binlog-ignore-db<span class="token operator">=</span>sys
+
+<span class="token comment">## 开启二进制日志功能，以备Slave作为其它Slave的Master时使用</span>
+log-bin<span class="token operator">=</span>slave2-bin   
+<span class="token comment">## relay_log配置中继日志</span>
+<span class="token assign-left variable">relay_log</span><span class="token operator">=</span>mysql-relay-bin  
+<span class="token assign-left variable">read_only</span><span class="token operator">=</span><span class="token number">1</span>  <span class="token comment">## 设置为只读,该项如果不设置，表示slave可读可写</span>
+</code></pre></div><h3 id="_4、启动docker容器"><a href="#_4、启动docker容器" class="header-anchor">#</a> 4、启动docker容器</h3> <p>进入mysql目录，执行启动命令启动docker容器</p> <ul><li>启动：<code>docker-compose up -d</code></li> <li>查看：<code>docker-compose ps</code></li> <li>停止：<code>docker-compose down</code></li></ul> <h3 id="_5、设置主从"><a href="#_5、设置主从" class="header-anchor">#</a> 5、设置主从</h3> <p>1、进行master容器，连接mysql</p> <ol><li><code>docker exec -it mysql-master bash</code></li> <li><code>muysql -r root -p 123456</code></li></ol> <p>2、查看master status
+<code>show master status</code></p> <div class="language-bash extra-class"><pre class="language-bash"><code>+-------------------+----------+--------------+--------------------------------------------+-------------------+
+<span class="token operator">|</span> File              <span class="token operator">|</span> Position <span class="token operator">|</span> Binlog_Do_DB <span class="token operator">|</span> Binlog_Ignore_DB                           <span class="token operator">|</span> Executed_Gtid_Set <span class="token operator">|</span>
++-------------------+----------+--------------+--------------------------------------------+-------------------+
+<span class="token operator">|</span> master-bin.000003 <span class="token operator">|</span>      <span class="token number">643</span> <span class="token operator">|</span>              <span class="token operator">|</span> information_schema,performation_schema,sys <span class="token operator">|</span>                   <span class="token operator">|</span>
++-------------------+----------+--------------+--------------------------------------------+-------------------+
+</code></pre></div><p>记录下file和position的值</p> <p>3、分别进行slave1和slave2容器并连接mysql</p> <p>4、然后执行1)：</p> <div class="language-sql extra-class"><pre class="language-sql"><code>change master <span class="token keyword">to</span> 
+master_host<span class="token operator">=</span><span class="token string">'192.168.232.130'</span><span class="token punctuation">,</span><span class="token comment">--master的IP</span>
+master_user<span class="token operator">=</span><span class="token string">'root'</span><span class="token punctuation">,</span><span class="token comment">--连接master的用户名</span>
+master_log_file<span class="token operator">=</span><span class="token string">'master-bin.000003'</span><span class="token punctuation">,</span><span class="token comment">--第2步骤查询到的结果file字段的值</span>
+master_log_pos<span class="token operator">=</span><span class="token number">154</span><span class="token punctuation">,</span><span class="token comment">--第2步骤查询到的结果position字段的值</span>
+master_port<span class="token operator">=</span><span class="token number">3316</span><span class="token punctuation">,</span><span class="token comment">--master的端口</span>
+master_password<span class="token operator">=</span><span class="token string">'123456'</span><span class="token punctuation">;</span><span class="token comment">--连接master的密码</span>
+</code></pre></div><p>执行2 ：开启从节点<code>start slave</code>;</p> <p>执行3：显示从节点信息<code>show slave status</code>;</p> <h3 id="_6、查看数据同步"><a href="#_6、查看数据同步" class="header-anchor">#</a> 6、查看数据同步</h3> <p>在主节点master上添加数据库、表以及数据看从节点是否同步。</p> <h2 id="四、springboot-mysql主从"><a href="#四、springboot-mysql主从" class="header-anchor">#</a> 四、SpringBoot+MYSQL主从</h2> <blockquote><p>搭建MYSQL主从只是为了使用，重点是在于怎么做读写分离。</p> <p>在网上也看到了很多种做读写分离的方案，综合考虑，这里我选择了<code>shardingsphere</code>来做读写分离。</p></blockquote> <h3 id="环境"><a href="#环境" class="header-anchor">#</a> 环境</h3> <ol><li>jdk1.8</li> <li>springboot：2.7.5</li> <li>Mybatis plus：3.5.1</li> <li>shardingsphere-jdbc：5.1.1</li> <li>druid：1.1.22</li> <li>maven：3.6.1</li></ol> <h3 id="新建springboot项目"><a href="#新建springboot项目" class="header-anchor">#</a> 新建springboot项目</h3> <p>​	Maven版本：</p> <div class="language-xml extra-class"><pre class="language-xml"><code>	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>com.baomidou<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>mybatis-plus-boot-starter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>3.5.1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.apache.shardingsphere<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>shardingsphere-jdbc-core-spring-boot-starter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>5.1.1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>com.alibaba<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>druid<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>1.1.22<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre></div><h3 id="使用mybatisx插件生成代码"><a href="#使用mybatisx插件生成代码" class="header-anchor">#</a> 使用MybatisX插件生成代码</h3> <p>步骤参考：<a href="https://baomidou.com/pages/ba5b24/#%E5%8A%9F%E8%83%BD" target="_blank" rel="noopener noreferrer">MybatisX插件使用方式<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></p> <h3 id="配置参考"><a href="#配置参考" class="header-anchor">#</a> 配置参考</h3> <div class="language-yml extra-class"><pre class="language-yml"><code><span class="token key atrule">server</span><span class="token punctuation">:</span>
+  <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8084</span>
+<span class="token key atrule">spring</span><span class="token punctuation">:</span>
+  <span class="token key atrule">shardingsphere</span><span class="token punctuation">:</span>
+    <span class="token key atrule">datasource</span><span class="token punctuation">:</span>
+      <span class="token key atrule">names</span><span class="token punctuation">:</span> master<span class="token punctuation">,</span>slave1<span class="token punctuation">,</span>slave2
+      <span class="token key atrule">master</span><span class="token punctuation">:</span>
+        <span class="token key atrule">url</span><span class="token punctuation">:</span> jdbc<span class="token punctuation">:</span>mysql<span class="token punctuation">:</span>//192.168.232.130<span class="token punctuation">:</span>3316/test<span class="token punctuation">?</span>serverTimezone=UTC<span class="token important">&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-</span><span class="token number">8</span>
+        <span class="token key atrule">type</span><span class="token punctuation">:</span> com.alibaba.druid.pool.DruidDataSource
+        <span class="token key atrule">driver-class-name</span><span class="token punctuation">:</span> com.mysql.cj.jdbc.Driver
+        <span class="token key atrule">username</span><span class="token punctuation">:</span> root
+        <span class="token key atrule">password</span><span class="token punctuation">:</span> <span class="token number">123456</span>
+      <span class="token key atrule">slave1</span><span class="token punctuation">:</span>
+        <span class="token key atrule">url</span><span class="token punctuation">:</span> jdbc<span class="token punctuation">:</span>mysql<span class="token punctuation">:</span>//192.168.232.130<span class="token punctuation">:</span>3317/test<span class="token punctuation">?</span>serverTimezone=UTC<span class="token important">&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-</span><span class="token number">8</span>
+        <span class="token key atrule">type</span><span class="token punctuation">:</span> com.alibaba.druid.pool.DruidDataSource
+        <span class="token key atrule">driver-class-name</span><span class="token punctuation">:</span> com.mysql.cj.jdbc.Driver
+        <span class="token key atrule">username</span><span class="token punctuation">:</span> root
+        <span class="token key atrule">password</span><span class="token punctuation">:</span> <span class="token number">123456</span>
+      <span class="token key atrule">slave2</span><span class="token punctuation">:</span>
+        <span class="token key atrule">url</span><span class="token punctuation">:</span> jdbc<span class="token punctuation">:</span>mysql<span class="token punctuation">:</span>//192.168.232.130<span class="token punctuation">:</span>3318/test<span class="token punctuation">?</span>serverTimezone=UTC<span class="token important">&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-</span><span class="token number">8</span>
+        <span class="token key atrule">type</span><span class="token punctuation">:</span> com.alibaba.druid.pool.DruidDataSource
+        <span class="token key atrule">driver-class-name</span><span class="token punctuation">:</span> com.mysql.cj.jdbc.Driver
+        <span class="token key atrule">username</span><span class="token punctuation">:</span> root
+        <span class="token key atrule">password</span><span class="token punctuation">:</span> <span class="token number">123456</span>
+    <span class="token key atrule">rules</span><span class="token punctuation">:</span>
+      <span class="token key atrule">sharding</span><span class="token punctuation">:</span>
+      <span class="token key atrule">readwrite-splitting</span><span class="token punctuation">:</span>
+        <span class="token key atrule">load-balancers</span><span class="token punctuation">:</span>
+          <span class="token key atrule">round_robin</span><span class="token punctuation">:</span>
+            <span class="token key atrule">type</span><span class="token punctuation">:</span> ROUND_ROBIN
+        <span class="token key atrule">data-sources</span><span class="token punctuation">:</span>
+          <span class="token key atrule">read_write_db</span><span class="token punctuation">:</span>
+            <span class="token key atrule">type</span><span class="token punctuation">:</span> Static
+            <span class="token key atrule">props</span><span class="token punctuation">:</span>
+              <span class="token key atrule">write-data-source-name</span><span class="token punctuation">:</span> master
+              <span class="token key atrule">read-data-source-names</span><span class="token punctuation">:</span> slave1<span class="token punctuation">,</span>slave2
+            <span class="token key atrule">load-balancer-name</span><span class="token punctuation">:</span> round_robin
+    <span class="token key atrule">props</span><span class="token punctuation">:</span>
+      <span class="token key atrule">sql-show</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
+
+</code></pre></div><h3 id="准备测代码"><a href="#准备测代码" class="header-anchor">#</a> 准备测代码：</h3> <p>MysqlInit.java</p> <div class="language-java extra-class"><pre class="language-java"><code><span class="token comment">/**
+ * 项目初始化执行
+ */</span>
+<span class="token annotation punctuation">@Slf4j</span>
+<span class="token annotation punctuation">@Component</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MysqlInit</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">private</span> <span class="token class-name">OperationService</span> operationService<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@PostConstruct</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10000</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            operationService<span class="token punctuation">.</span><span class="token function">save</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>i<span class="token operator">&gt;</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                operationService<span class="token punctuation">.</span><span class="token function">query</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+</code></pre></div><p>OperationService.java</p> <div class="language-java extra-class"><pre class="language-java"><code><span class="token comment">/**
+ * 数据库操作
+ */</span>
+<span class="token annotation punctuation">@Slf4j</span>
+<span class="token annotation punctuation">@Service</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OperationService</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">private</span> <span class="token class-name">UserService</span> userService<span class="token punctuation">;</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token class-name">Random</span> random <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Random</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">/**
+     * 生成随机内容添加数据
+     * @param i
+     */</span>
+    <span class="token annotation punctuation">@Async</span><span class="token punctuation">(</span><span class="token string">&quot;mysqlThreadPool&quot;</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">save</span><span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token class-name">String</span> sex<span class="token operator">=</span><span class="token string">&quot;男&quot;</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>i<span class="token operator">%</span><span class="token number">2</span><span class="token operator">==</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            sex<span class="token operator">=</span> <span class="token string">&quot;女&quot;</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token class-name">User</span> user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span> <span class="token constant">UUID</span><span class="token punctuation">.</span><span class="token function">randomUUID</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>sex<span class="token punctuation">,</span>random<span class="token punctuation">.</span><span class="token function">nextInt</span><span class="token punctuation">(</span><span class="token number">120</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">boolean</span> save <span class="token operator">=</span> userService<span class="token punctuation">.</span><span class="token function">save</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>save<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">&quot;插入数据成功：{}&quot;</span><span class="token punctuation">,</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token keyword">else</span><span class="token punctuation">{</span>
+            log<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">&quot;插入数据失败&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Async</span><span class="token punctuation">(</span><span class="token string">&quot;mysqlThreadPool&quot;</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">query</span><span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token class-name">User</span> user <span class="token operator">=</span> userService<span class="token punctuation">.</span><span class="token function">getById</span><span class="token punctuation">(</span>random<span class="token punctuation">.</span><span class="token function">nextInt</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">&quot;随机查询数据为：{}&quot;</span><span class="token punctuation">,</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre></div><h3 id="启动项目"><a href="#启动项目" class="header-anchor">#</a> 启动项目</h3> <p>控制台显示日志：</p> <div class="language-sh extra-class"><pre class="language-sh"><code><span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.082  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> ShardingSphere-SQL                       <span class="token builtin class-name">:</span> SQLStatement: MySQLInsertStatement<span class="token punctuation">(</span>setAssignment<span class="token operator">=</span>Optional.empty, <span class="token assign-left variable">onDuplicateKeyColumns</span><span class="token operator">=</span>Optional.empty<span class="token punctuation">)</span>
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.082  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> ShardingSphere-SQL                       <span class="token builtin class-name">:</span> Actual SQL: master ::: INSERT INTO user  <span class="token punctuation">(</span> name,sex,age <span class="token punctuation">)</span>  VALUES  <span class="token punctuation">(</span> ?,?,? <span class="token punctuation">)</span> ::: <span class="token punctuation">[</span>489d32c0-8689-4e05-b68e-96b046ae5046, 女, <span class="token number">22</span><span class="token punctuation">]</span>
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.084  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> c.mengl.mysql.service.OperationService   <span class="token builtin class-name">:</span> 插入数据成功：User <span class="token punctuation">[</span>Hash <span class="token operator">=</span> <span class="token number">1085628063</span>, <span class="token assign-left variable">id</span><span class="token operator">=</span><span class="token number">7396</span>, <span class="token assign-left variable">name</span><span class="token operator">=</span>489d32c0-8689-4e05-b68e-96b046ae5046, <span class="token assign-left variable">sex</span><span class="token operator">=</span>女, <span class="token assign-left variable">age</span><span class="token operator">=</span><span class="token number">22</span>, <span class="token assign-left variable">serialVersionUID</span><span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">]</span>
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.085  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> ShardingSphere-SQL                       <span class="token builtin class-name">:</span> Logic SQL: SELECT id,name,sex,age FROM user WHERE <span class="token assign-left variable">id</span><span class="token operator">=</span>? 
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.085  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> ShardingSphere-SQL                       <span class="token builtin class-name">:</span> SQLStatement: MySQLSelectStatement<span class="token punctuation">(</span>table<span class="token operator">=</span>Optional.empty, <span class="token assign-left variable">limit</span><span class="token operator">=</span>Optional.empty, <span class="token assign-left variable">lock</span><span class="token operator">=</span>Optional.empty, <span class="token assign-left variable">window</span><span class="token operator">=</span>Optional.empty<span class="token punctuation">)</span>
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.085  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> ShardingSphere-SQL                       <span class="token builtin class-name">:</span> Actual SQL: slave2 ::: SELECT id,name,sex,age FROM user WHERE <span class="token assign-left variable">id</span><span class="token operator">=</span>?  ::: <span class="token punctuation">[</span><span class="token number">5072</span><span class="token punctuation">]</span>
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.086  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> c.mengl.mysql.service.OperationService   <span class="token builtin class-name">:</span> 随机查询数据为：User <span class="token punctuation">[</span>Hash <span class="token operator">=</span> <span class="token number">1109246400</span>, <span class="token assign-left variable">id</span><span class="token operator">=</span><span class="token number">5072</span>, <span class="token assign-left variable">name</span><span class="token operator">=</span>b740fae3-0aae-4542-822d-8dd6c6d274ef, <span class="token assign-left variable">sex</span><span class="token operator">=</span>女, <span class="token assign-left variable">age</span><span class="token operator">=</span><span class="token number">13</span>, <span class="token assign-left variable">serialVersionUID</span><span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">]</span>
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.086  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> ShardingSphere-SQL                       <span class="token builtin class-name">:</span> Logic SQL: INSERT INTO user  <span class="token punctuation">(</span> name,sex,age <span class="token punctuation">)</span>  VALUES  <span class="token punctuation">(</span> ?,?,? <span class="token punctuation">)</span>
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.086  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> ShardingSphere-SQL                       <span class="token builtin class-name">:</span> SQLStatement: MySQLInsertStatement<span class="token punctuation">(</span>setAssignment<span class="token operator">=</span>Optional.empty, <span class="token assign-left variable">onDuplicateKeyColumns</span><span class="token operator">=</span>Optional.empty<span class="token punctuation">)</span>
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.086  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> ShardingSphere-SQL                       <span class="token builtin class-name">:</span> Actual SQL: master ::: INSERT INTO user  <span class="token punctuation">(</span> name,sex,age <span class="token punctuation">)</span>  VALUES  <span class="token punctuation">(</span> ?,?,? <span class="token punctuation">)</span> ::: <span class="token punctuation">[</span>52bebb40-10c9-4117-b2fa-ccaf6104c759, 男, <span class="token number">73</span><span class="token punctuation">]</span>
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.089  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> c.mengl.mysql.service.OperationService   <span class="token builtin class-name">:</span> 插入数据成功：User <span class="token punctuation">[</span>Hash <span class="token operator">=</span> -74377815, <span class="token assign-left variable">id</span><span class="token operator">=</span><span class="token number">7397</span>, <span class="token assign-left variable">name</span><span class="token operator">=</span>52bebb40-10c9-4117-b2fa-ccaf6104c759, <span class="token assign-left variable">sex</span><span class="token operator">=</span>男, <span class="token assign-left variable">age</span><span class="token operator">=</span><span class="token number">73</span>, <span class="token assign-left variable">serialVersionUID</span><span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">]</span>
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.089  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> ShardingSphere-SQL                       <span class="token builtin class-name">:</span> Logic SQL: SELECT id,name,sex,age FROM user WHERE <span class="token assign-left variable">id</span><span class="token operator">=</span>? 
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.089  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> ShardingSphere-SQL                       <span class="token builtin class-name">:</span> SQLStatement: MySQLSelectStatement<span class="token punctuation">(</span>table<span class="token operator">=</span>Optional.empty, <span class="token assign-left variable">limit</span><span class="token operator">=</span>Optional.empty, <span class="token assign-left variable">lock</span><span class="token operator">=</span>Optional.empty, <span class="token assign-left variable">window</span><span class="token operator">=</span>Optional.empty<span class="token punctuation">)</span>
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.089  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> ShardingSphere-SQL                       <span class="token builtin class-name">:</span> Actual SQL: slave1 ::: SELECT id,name,sex,age FROM user WHERE <span class="token assign-left variable">id</span><span class="token operator">=</span>?  ::: <span class="token punctuation">[</span><span class="token number">2592</span><span class="token punctuation">]</span>
+<span class="token number">2022</span>-11-08 <span class="token number">10</span>:26:22.091  INFO <span class="token number">28064</span> --- <span class="token punctuation">[</span>  restartedMain<span class="token punctuation">]</span> c.mengl.mysql.service.OperationService   <span class="token builtin class-name">:</span> 随机查询数据为：User <span class="token punctuation">[</span>Hash <span class="token operator">=</span> <span class="token number">1138329258</span>, <span class="token assign-left variable">id</span><span class="token operator">=</span><span class="token number">2592</span>, <span class="token assign-left variable">name</span><span class="token operator">=</span>8998491e-b737-475b-888f-39dd3b0ae65a, <span class="token assign-left variable">sex</span><span class="token operator">=</span>女, <span class="token assign-left variable">age</span><span class="token operator">=</span><span class="token number">55</span>, <span class="token assign-left variable">serialVersionUID</span><span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">]</span>
+
+</code></pre></div><p>可以清晰的看到插入数据使用的是master节点，查询数据使用的是slave1、slave2节点切换。</p> <p>至此，完成。</p></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/guide/database/mysql/principle/01MYSQL.html" class="prev">
+        MYSQL理论
+      </a></span> <!----></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/assets/js/app.874a2ac8.js" defer></script><script src="/assets/js/2.57a39ff2.js" defer></script><script src="/assets/js/7.04ed8f94.js" defer></script>
+  </body>
+</html>
